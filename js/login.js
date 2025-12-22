@@ -1,6 +1,6 @@
-import { db } from "./firebase.js";
+console.log("login.js loaded");
 
 document.getElementById("btnLogin").onclick = () => {
-  // nanti pakai Firebase Auth
+  alert("Login diklik");
   window.location.href = "dashboard.html";
 };
