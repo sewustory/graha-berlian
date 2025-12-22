@@ -2,16 +2,56 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Transaksi</title>
+  <title>Tambah Transaksi</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <h2>Input Transaksi</h2>
+<body class="app-bg">
 
-  <form id="formTransaksi">
-    <input type="number" id="amount" placeholder="Jumlah" required />
-    <input type="text" id="keterangan" placeholder="Keterangan" required />
-    <button type="submit">Simpan</button>
-  </form>
+  <div class="card">
+    <h2>Tambah Transaksi</h2>
+    <p class="subtitle">Input transaksi keuangan Graha Berlian</p>
+
+    <form id="formTransaksi" class="form-grid">
+
+      <div class="form-group">
+        <label>Jenis</label>
+        <select id="type">
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Kategori</label>
+        <select id="categoryType">
+          <option value="expense">Expense</option>
+          <option value="cost">Cost</option>
+        </select>
+      </div>
+
+      <div class="form-group full">
+        <label>Category ID</label>
+        <input type="text" id="categoryId" placeholder="contoh: operasional_kantor" />
+      </div>
+
+      <div class="form-group">
+        <label>Jumlah</label>
+        <input type="number" id="amount" placeholder="0" required />
+      </div>
+
+      <div class="form-group">
+        <label>Keterangan</label>
+        <input type="text" id="keterangan" placeholder="Catatan transaksi" />
+      </div>
+
+      <div class="form-group full">
+        <button type="submit" class="btn-primary">💾 Simpan Transaksi</button>
+      </div>
+
+    </form>
+
+    <a href="dashboard.html" class="link-back">← Kembali ke Dashboard</a>
+  </div>
 
   <script type="module" src="js/transaksi.js"></script>
 </body>
