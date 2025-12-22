@@ -2,47 +2,69 @@ import { auth, db } from "./firebase.js";
 import {
   collection,
   addDoc,
+  getDocs,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-onAuthStateChanged(auth, user => {
-  if (!user) {
-    window.location.href = "login.html";
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const form = document.getElementById("formTransaksi");
+const typeEl = document.getElementById("type");
+const categoryEl = document.getElementById("categoryId");
+
+// 🔥 LOAD KATEGORI DARI FIRESTORE (TIDAK HALU)
+async function loadCategories() {
+  categoryEl.innerHTML = "<option value=''>Pilih kategori</option>";
+
+  const type = typeEl.value;
+  const collectionName =
+    type === "expense" ? "expense_categories" : "cost_categories";
+
+  const snap = await getDocs(collection(db, collectionName));
+
+  snap.forEach(doc => {
+    const opt = document.createElement("option");
+    opt.value = doc.id;
+    opt.textContent = doc.data().nama;
+    categoryEl.appendChild(opt);
+  });
+}
+
+// reload kategori saat jenis berubah
+typeEl.addEventListener("change", loadCategories);
+
+// submit transaksi
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const data = {
+    type: typeEl.value,
+    categoryId: categoryEl.value,
+    amount: Number(amount.value),
+    keterangan: keterangan.value,
+    createdAt: serverTimestamp(),
+    createdBy: auth.currentUser.uid
+  };
+
+  if (!data.categoryId) {
+    alert("Kategori wajib dipilih");
     return;
   }
 
-  document.getElementById("btnSave").addEventListener("click", async () => {
-    const type = document.getElementById("type").value;
-    const categoryType = document.getElementById("categoryType").value;
-    const categoryId = document.getElementById("categoryId").value;
-    const amount = Number(document.getElementById("amount").value);
-    const keterangan = document.getElementById("keterangan").value;
+  if (!data.amount || data.amount <= 0) {
+    alert("Jumlah tidak valid");
+    return;
+  }
 
-    if (!amount || amount <= 0) {
-      alert("Jumlah tidak valid");
-      return;
-    }
-
-    try {
-      await addDoc(collection(db, "transactions"), {
-        type,
-        categoryType,
-        categoryId,
-        amount,
-        keterangan,
-        tanggal: serverTimestamp(),
-        createdAt: serverTimestamp(),
-        createdBy: user.uid
-      });
-
-      alert("Transaksi berhasil disimpan");
-      window.location.href = "dashboard.html";
-
-    } catch (err) {
-      console.error(err);
-      alert("Gagal menyimpan transaksi");
-    }
-  });
+  await addDoc(collection(db, "transactions"), data);
+  alert("Transaksi berhasil disimpan");
+  window.location.href = "dashboard.html";
 });
 
+// auth guard
+onAuthStateChanged(auth, (user) => {
+  if (!user) window.location.href = "login.html";
+  else loadCategories();
+});
