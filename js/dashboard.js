@@ -27,15 +27,18 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  if (data.role !== "admin") {
-    alert("Akses ditolak. Admin only.");
-    await signOut(auth);
-    window.location.href = "login.html";
-    return;
-  }
+  const allowedRoles = ["admin", "staff"];
+
+if (!allowedRoles.includes(data.role)) {
+  alert("Akses ditolak");
+  await signOut(auth);
+  window.location.href = "login.html";
+  return;
+}
+
 
   // ✅ LOLOS → ADMIN
-  console.log("Login admin:", data.email);
+  console.log("Login sukses:", data.role, data.email);
 });
 
 // logout
