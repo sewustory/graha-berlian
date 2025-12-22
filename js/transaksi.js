@@ -19,8 +19,16 @@ async function loadCategories() {
   categoryEl.innerHTML = "<option value=''>Pilih kategori</option>";
 
   const type = typeEl.value;
-  const collectionName =
-    type === "expense" ? "expense_categories" : "cost_categories";
+  let collectionName = "";
+
+if (type === "expense") {
+  collectionName = "expense_categories";
+}
+
+if (type === "income") {
+  collectionName = "cost_categories"; 
+  // atau nanti: income_categories kalau kamu bikin
+}
 
   const snap = await getDocs(collection(db, collectionName));
 
