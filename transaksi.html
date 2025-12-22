@@ -5,52 +5,45 @@
   <title>Tambah Transaksi</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="app-bg">
+<body>
 
   <div class="card">
-    <h2>Tambah Transaksi</h2>
+    <h1>Tambah Transaksi</h1>
     <p class="subtitle">Input transaksi keuangan Graha Berlian</p>
 
     <form id="formTransaksi" class="form-grid">
 
-      <div class="form-group">
-        <label>Jenis</label>
+      <div>
+        <label>Jenis Transaksi</label>
         <select id="type">
           <option value="expense">Expense</option>
           <option value="income">Income</option>
         </select>
       </div>
 
-      <div class="form-group">
+      <div>
         <label>Kategori</label>
-        <select id="categoryType">
-          <option value="expense">Expense</option>
-          <option value="cost">Cost</option>
+        <select id="categoryId">
+          <option value="">Memuat kategori...</option>
         </select>
       </div>
 
-      <div class="form-group full">
-        <label>Category ID</label>
-        <input type="text" id="categoryId" placeholder="contoh: operasional_kantor" />
-      </div>
-
-      <div class="form-group">
+      <div>
         <label>Jumlah</label>
-        <input type="number" id="amount" placeholder="0" required />
+        <input type="number" id="amount" placeholder="0" />
       </div>
 
-      <div class="form-group">
+      <div>
         <label>Keterangan</label>
         <input type="text" id="keterangan" placeholder="Catatan transaksi" />
       </div>
 
-      <div class="form-group full">
-        <button type="submit" class="btn-primary">💾 Simpan Transaksi</button>
-      </div>
-
+      <button type="submit" class="btn-primary">
+        💾 Simpan Transaksi
+      </button>
     </form>
 
-    <a href="dashboard.html" class="link-back">← Kembali ke Dashboard</a>
+    <a href="dashboard.html" class="back-link">← Kembali ke Dashboard</a>
   </div>
 
   <script type="module" src="js/transaksi.js"></script>
