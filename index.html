@@ -1,17 +1,67 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Graha Berlian Finance</title>
+</head>
+<body>
+  <h2>Graha Berlian Finance</h2>
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCZ2qWPWNOtLh0h5jvyG6I7aM3UFq83iwI",
-  authDomain: "graha-berlian.firebaseapp.com",
-  projectId: "graha-berlian",
-  storageBucket: "graha-berlian.firebasestorage.app",
-  messagingSenderId: "496262788616",
-  appId: "1:496262788616:web:2d4897cc838cd86f9343bd"
-};
+  <button id="btnWrite">Test Tulis Firestore</button>
+  <button id="btnRead">Test Baca Firestore</button>
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+  <pre id="output"></pre>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // ✅ CONFIG KAMU (SUDAH DIBENERIN)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCZ2qWPWNOtLh0h5jvyG6I7aM3UFq83iwI",
+      authDomain: "graha-berlian.firebaseapp.com",
+      projectId: "graha-berlian",
+      storageBucket: "graha-berlian.appspot.com",
+      messagingSenderId: "496262788616",
+      appId: "1:496262788616:web:2d4897cc838cd86f9343bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const output = document.getElementById("output");
+
+    document.getElementById("btnWrite").onclick = async () => {
+      try {
+        const ref = await addDoc(collection(db, "expense_categories"), {
+          nama: "TEST DARI GITHUB",
+          group: "Expense",
+          deskripsi: "Tes koneksi web",
+          isActive: true,
+          createdAt: serverTimestamp()
+        });
+        output.textContent = "WRITE OK: " + ref.id;
+      } catch (e) {
+        output.textContent = "WRITE ERROR: " + e.message;
+      }
+    };
+
+    document.getElementById("btnRead").onclick = async () => {
+      try {
+        const snap = await getDocs(collection(db, "expense_categories"));
+        const data = [];
+        snap.forEach(d => data.push({ id: d.id, ...d.data() }));
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        output.textContent = "READ ERROR: " + e.message;
+      }
+    };
+  </script>
+</body>
+</html>
