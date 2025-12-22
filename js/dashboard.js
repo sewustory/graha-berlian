@@ -1,12 +1,16 @@
-import { db } from "./firebase.js";
-import { collection, getDocs } 
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { auth } from "./firebase.js";
+import { onAuthStateChanged, signOut } from
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const output = document.getElementById("output");
+const btnLogout = document.getElementById("btnLogout");
 
-document.getElementById("loadData").onclick = async () => {
-  const snap = await getDocs(collection(db, "expense_categories"));
-  const data = [];
-  snap.forEach(d => data.push({ id: d.id, ...d.data() }));
-  output.textContent = JSON.stringify(data, null, 2);
-};
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+  }
+});
+
+btnLogout.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "login.html";
+});
