@@ -1,4 +1,4 @@
-import { db } from "./firebase.js";
+import { db, auth } from "./firebase.js";
 import {
   collection,
   getDocs,
@@ -6,31 +6,28 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// =====================
-// ELEMENT
-// =====================
-const jenisSelect = document.getElementById("jenisTransaksi");
-const kategoriSelect = document.getElementById("kategori");
-const jumlahInput = document.getElementById("jumlah");
-const keteranganInput = document.getElementById("keterangan");
-const form = document.getElementById("formTransaksi");
+const jenisEl = document.getElementById("jenis");
+const kategoriEl = document.getElementById("kategori");
+const jumlahEl = document.getElementById("jumlah");
+const keteranganEl = document.getElementById("keterangan");
+const btnSimpan = document.getElementById("btnSimpan");
 
-// =====================
-// MAP JENIS → COLLECTION
-// =====================
+// 🔥 mapping JELAS, TIDAK HALU
 const CATEGORY_MAP = {
-  Cost: "cost_categories",
-  Expense: "expense_categories",
-  Income: "income_categories"
+  income: "income_categories",
+  expense: "expense_categories",
+  cost: "cost_categories"
 };
 
-// =====================
+// ==========================
 // LOAD KATEGORI
-// =====================
-async function loadKategori(jenis) {
-  kategoriSelect.innerHTML = `<option value="">Pilih kategori</option>`;
+// ==========================
+async function loadKategori() {
+  kategoriEl.innerHTML = `<option value="">Pilih kategori</option>`;
 
+  const jenis = jenisEl.value;
   const collectionName = CATEGORY_MAP[jenis];
+
   if (!collectionName) return;
 
   const snap = await getDocs(collection(db, collectionName));
@@ -38,54 +35,48 @@ async function loadKategori(jenis) {
   snap.forEach(doc => {
     const data = doc.data();
 
-    // ⛔ HARD GUARD (INI PENTING)
-    if (!data.isActive || !data.nama) return;
+    // ❗ JANGAN FILTER isActive dulu biar GA KE-SKIP
+    if (!data.nama) return;
 
     const opt = document.createElement("option");
     opt.value = doc.id;
-    opt.textContent = data.nama;
-    kategoriSelect.appendChild(opt);
+    opt.textContent = data.nama; // ✅ BUKAN label
+    kategoriEl.appendChild(opt);
   });
 }
 
-// =====================
-// EVENT: JENIS BERUBAH
-// =====================
-jenisSelect.addEventListener("change", e => {
-  loadKategori(e.target.value);
-});
+// ==========================
+// EVENT
+// ==========================
+jenisEl.addEventListener("change", loadKategori);
 
-// =====================
-// SUBMIT TRANSAKSI
-// =====================
-form.addEventListener("submit", async e => {
-  e.preventDefault();
+// ==========================
+// SIMPAN TRANSAKSI
+// ==========================
+btnSimpan.addEventListener("click", async () => {
+  if (!kategoriEl.value || !jumlahEl.value) {
+    alert("Lengkapi data");
+    return;
+  }
 
-  const jenis = jenisSelect.value;
-  const kategoriId = kategoriSelect.value;
-  const jumlah = Number(jumlahInput.value);
-  const keterangan = keteranganInput.value;
-
-  if (!jenis || !kategoriId || jumlah <= 0) {
-    alert("Lengkapi data transaksi");
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Belum login");
     return;
   }
 
   await addDoc(collection(db, "transactions"), {
-    type: jenis.toLowerCase(),        // cost | expense | income
-    categoryType: jenis,              // Cost | Expense | Income
-    categoryId: kategoriId,
-    amount: jumlah,
-    keterangan,
+    type: jenisEl.value,
+    categoryId: kategoriEl.value,
+    amount: Number(jumlahEl.value),
+    keterangan: keteranganEl.value,
+    createdBy: user.uid,
     createdAt: serverTimestamp()
   });
 
-  alert("Transaksi berhasil disimpan");
-  form.reset();
-  loadKategori(jenis);
+  alert("Transaksi tersimpan");
+  window.location.href = "dashboard.html";
 });
 
-// =====================
-// INIT
-// =====================
-loadKategori(jenisSelect.value);
+// load awal
+loadKategori();
