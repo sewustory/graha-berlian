@@ -1,51 +1,49 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Tambah Transaksi</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="card">
-    <h1>Tambah Transaksi</h1>
-    <p class="subtitle">Input transaksi keuangan Graha Berlian</p>
+<div class="card">
+  <h1>Tambah Transaksi</h1>
+  <p class="subtitle">Input transaksi keuangan Graha Berlian</p>
 
-    <form id="formTransaksi" class="form-grid">
+  <div class="grid">
+    <div>
+      <label>Jenis Transaksi</label>
+      <select id="jenis">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+        <option value="cost">Cost</option>
+      </select>
+    </div>
 
-      <div>
-        <label>Jenis Transaksi</label>
-        <select id="type">
-          <option value="expense">Expense</option>
-          <option value="income">Income</option>
-        </select>
-      </div>
+    <div>
+      <label>Kategori</label>
+      <select id="kategori">
+        <option value="">Pilih kategori</option>
+      </select>
+    </div>
 
-      <div>
-        <label>Kategori</label>
-        <select id="categoryId">
-          <option value="">Memuat kategori...</option>
-        </select>
-      </div>
+    <div>
+      <label>Jumlah</label>
+      <input type="number" id="jumlah" value="0">
+    </div>
 
-      <div>
-        <label>Jumlah</label>
-        <input type="number" id="amount" placeholder="0" />
-      </div>
-
-      <div>
-        <label>Keterangan</label>
-        <input type="text" id="keterangan" placeholder="Catatan transaksi" />
-      </div>
-
-      <button type="submit" class="btn-primary">
-        💾 Simpan Transaksi
-      </button>
-    </form>
-
-    <a href="dashboard.html" class="back-link">← Kembali ke Dashboard</a>
+    <div>
+      <label>Keterangan</label>
+      <input type="text" id="keterangan" placeholder="Catatan transaksi">
+    </div>
   </div>
 
-  <script type="module" src="js/transaksi.js"></script>
+  <button id="btnSimpan">💾 Simpan Transaksi</button>
+
+  <a href="dashboard.html" class="back">← Kembali ke Dashboard</a>
+</div>
+
+<script type="module" src="js/transaksi.js"></script>
 </body>
 </html>
