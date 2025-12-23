@@ -30,17 +30,18 @@ async function loadKategori(type) {
   if (type === "expense") colName = "expense_categories";
   if (type === "cost") colName = "cost_categories";
 
-  const q = query(
-    collection(db, colName),
-    where("isActive", "==", true)
-  );
-
-  const snap = await getDocs(q);
+  const snap = await getDocs(collection(db, colName));
 
   snap.forEach(doc => {
+    const data = doc.data();
+
+    // 🔒 GUARD WAJIB
+    if (!data.nama) return;
+    if (data.isActive !== true) return;
+
     kategoriEl.innerHTML += `
       <option value="${doc.id}">
-        ${doc.data().nama}
+        ${data.nama}
       </option>
     `;
   });
