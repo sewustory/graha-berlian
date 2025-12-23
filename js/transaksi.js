@@ -1,82 +1,91 @@
-import { db, auth } from "./firebase.js";
+import { db } from "./firebase.js";
 import {
   collection,
-  query,
-  where,
   getDocs,
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const jenisEl = document.getElementById("jenis");
-const kategoriEl = document.getElementById("kategori");
-const jumlahEl = document.getElementById("jumlah");
-const ketEl = document.getElementById("keterangan");
-const btnSimpan = document.getElementById("btnSimpan");
+// =====================
+// ELEMENT
+// =====================
+const jenisSelect = document.getElementById("jenisTransaksi");
+const kategoriSelect = document.getElementById("kategori");
+const jumlahInput = document.getElementById("jumlah");
+const keteranganInput = document.getElementById("keterangan");
+const form = document.getElementById("formTransaksi");
 
-onAuthStateChanged(auth, user => {
-  if (!user) {
-    window.location.href = "login.html";
-  }
-});
+// =====================
+// MAP JENIS → COLLECTION
+// =====================
+const CATEGORY_MAP = {
+  Cost: "cost_categories",
+  Expense: "expense_categories",
+  Income: "income_categories"
+};
 
-// LOAD KATEGORI SESUAI JENIS
-async function loadKategori(type) {
-  kategoriEl.innerHTML = `<option value="">Pilih kategori</option>`;
+// =====================
+// LOAD KATEGORI
+// =====================
+async function loadKategori(jenis) {
+  kategoriSelect.innerHTML = `<option value="">Pilih kategori</option>`;
 
-  let colName = "";
-  if (type === "income") colName = "income_categories";
-  if (type === "expense") colName = "expense_categories";
-  if (type === "cost") colName = "cost_categories";
+  const collectionName = CATEGORY_MAP[jenis];
+  if (!collectionName) return;
 
-  const snap = await getDocs(collection(db, colName));
+  const snap = await getDocs(collection(db, collectionName));
 
   snap.forEach(doc => {
     const data = doc.data();
 
-    // 🔒 GUARD WAJIB
-    if (!data.nama) return;
-    if (data.isActive !== true) return;
+    // ⛔ HARD GUARD (INI PENTING)
+    if (!data.isActive || !data.nama) return;
 
-    kategoriEl.innerHTML += `
-      <option value="${doc.id}">
-        ${data.nama}
-      </option>
-    `;
+    const opt = document.createElement("option");
+    opt.value = doc.id;
+    opt.textContent = data.nama;
+    kategoriSelect.appendChild(opt);
   });
 }
 
-// INIT
-loadKategori(jenisEl.value);
-
-// CHANGE JENIS
-jenisEl.addEventListener("change", () => {
-  loadKategori(jenisEl.value);
+// =====================
+// EVENT: JENIS BERUBAH
+// =====================
+jenisSelect.addEventListener("change", e => {
+  loadKategori(e.target.value);
 });
 
-// SIMPAN TRANSAKSI
-btnSimpan.addEventListener("click", async () => {
-  if (!kategoriEl.value) {
-    alert("Kategori wajib dipilih");
-    return;
-  }
+// =====================
+// SUBMIT TRANSAKSI
+// =====================
+form.addEventListener("submit", async e => {
+  e.preventDefault();
 
-  if (jumlahEl.value <= 0) {
-    alert("Jumlah harus lebih dari 0");
+  const jenis = jenisSelect.value;
+  const kategoriId = kategoriSelect.value;
+  const jumlah = Number(jumlahInput.value);
+  const keterangan = keteranganInput.value;
+
+  if (!jenis || !kategoriId || jumlah <= 0) {
+    alert("Lengkapi data transaksi");
     return;
   }
 
   await addDoc(collection(db, "transactions"), {
-    type: jenisEl.value,            // income | expense | cost
-    categoryId: kategoriEl.value,
-    amount: Number(jumlahEl.value),
-    keterangan: ketEl.value,
-    createdAt: serverTimestamp(),
-    createdBy: auth.currentUser.uid
+    type: jenis.toLowerCase(),        // cost | expense | income
+    categoryType: jenis,              // Cost | Expense | Income
+    categoryId: kategoriId,
+    amount: jumlah,
+    keterangan,
+    createdAt: serverTimestamp()
   });
 
   alert("Transaksi berhasil disimpan");
-  jumlahEl.value = 0;
-  ketEl.value = "";
+  form.reset();
+  loadKategori(jenis);
 });
+
+// =====================
+// INIT
+// =====================
+loadKategori(jenisSelect.value);
